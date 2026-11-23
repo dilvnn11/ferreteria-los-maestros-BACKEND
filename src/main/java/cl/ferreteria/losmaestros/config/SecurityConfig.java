@@ -47,6 +47,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/productos/**", "/api/categorias/**").permitAll()
                         // los invitados pueden comprar y enviar consultas (igual que en el frontend)
                         .requestMatchers(HttpMethod.POST, "/api/compras", "/api/contacto").permitAll()
+                        // Swagger / OpenAPI
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint((req, res, ex) -> {

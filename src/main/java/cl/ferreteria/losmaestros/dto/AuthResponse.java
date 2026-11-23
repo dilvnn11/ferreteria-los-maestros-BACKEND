@@ -1,3 +1,4 @@
 package cl.ferreteria.losmaestros.dto;
 
-public record AuthResponse(String token, UsuarioDto usuario) {}
+/** Respuesta de login y de renovación de token. */
+public record AuthResponse(String token, long expiresInMinutes, UsuarioDto usuario) {}

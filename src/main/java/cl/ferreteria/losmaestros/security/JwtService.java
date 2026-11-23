@@ -1,6 +1,7 @@
 package cl.ferreteria.losmaestros.security;
 
 import cl.ferreteria.losmaestros.model.Usuario;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
@@ -27,6 +28,10 @@ public class JwtService {
         this.minutosExpiracion = minutosExpiracion;
     }
 
+    public long getMinutosExpiracion() {
+        return minutosExpiracion;
+    }
+
     /** El token solo identifica al usuario; el rol se lee siempre de la base de datos. */
     public String generar(Usuario usuario) {
         Instant ahora = Instant.now();
@@ -40,6 +45,23 @@ public class JwtService {
 
     /** Devuelve el id del usuario o lanza JwtException si el token no es válido o expiró. */
     public String extraerUsuarioId(String token) {
-        return Jwts.parser().verifyWith(clave).build().parseSignedClaims(token).getPayload().getSubject();
+        return parseClaims(token).getSubject();
+    }
+
+    public Instant extraerExpiracion(String token) {
+        return parseClaims(token).getExpiration().toInstant();
+    }
+
+    public boolean esValido(String token) {
+        try {
+            Claims claims = parseClaims(token);
+            return claims.getExpiration().after(new Date());
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private Claims parseClaims(String token) {
+        return Jwts.parser().verifyWith(clave).build().parseSignedClaims(token).getPayload();
     }
 }

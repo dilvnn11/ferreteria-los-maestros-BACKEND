@@ -55,10 +55,28 @@ public class AuthService {
                             : "Credenciales incorrectas. Te quedan " + restantes + " intento(s).");
         }
 
-        if (u.getIntentosFallidos() > 0) {
-            u.setIntentosFallidos(0);
-            usuarios.save(u);
+        u.setIntentosFallidos(0);
+        usuarios.save(u);
+        return emitirToken(u);
+    }
+
+    /**
+     * Renueva el JWT de un usuario autenticado (el token actual debe seguir siendo válido).
+     * El rol se lee siempre de la BD, no del token.
+     */
+    public AuthResponse renovar(Usuario actual) {
+        if (actual == null) {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "Debes iniciar sesión.");
         }
-        return new AuthResponse(jwt.generar(u), UsuarioDto.de(u));
+        Usuario u = usuarios.findById(actual.getId())
+                .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "Usuario no encontrado."));
+        if (u.getIntentosFallidos() >= UsuarioDto.MAX_INTENTOS) {
+            throw new ApiException(HttpStatus.LOCKED, "Esta cuenta está bloqueada.");
+        }
+        return emitirToken(u);
+    }
+
+    private AuthResponse emitirToken(Usuario u) {
+        return new AuthResponse(jwt.generar(u), jwt.getMinutosExpiracion(), UsuarioDto.de(u));
     }
 }

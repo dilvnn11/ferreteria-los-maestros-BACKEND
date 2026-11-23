@@ -6,10 +6,12 @@ import cl.ferreteria.losmaestros.dto.StockRequest;
 import cl.ferreteria.losmaestros.service.ProductoService;
 import java.util.List;
 import org.springframework.http.HttpStatus;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@Tag(name = "Productos", description = "Catálogo y stock")
 @RequestMapping("/api/productos")
 public class ProductoController {
 
